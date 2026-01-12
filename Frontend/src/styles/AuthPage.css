@@ -1,0 +1,55 @@
+:root {
+  --bg-main: #f7f7f8;
+  --card-bg: #ffffff;
+
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+
+  --border-color: #e5e7eb;
+
+  --primary-color: #10a37f;        /* ChatGPT green */
+  --primary-hover: #0e8f6f;
+
+  --error-bg: #fef2f2;
+  --error-text: #b91c1c;
+
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background:  var(--bg-main);
+  padding: 1rem;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 500px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color);
+}
+
+.auth-header {
+  padding: 1.5rem 2rem;
+  text-align: center;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-header h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+}
+
+.auth-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
