@@ -1,0 +1,1 @@
+{  "name": "LolaGPT",  "description": "ChatGPT-like web app — React frontend + Node/Express backend, MongoDB, Groq AI (LLM) integration",  "private": false,  "topics": [    "react",    "nodejs",    "express",    "mongodb",    "groq",    "llm",    "jwt",    "chat"  ]}
