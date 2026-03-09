@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080"
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -55,13 +55,23 @@ export const userAPI = {
 
 // Chat API calls
 export const chatAPI = {
-  sendMessage: (threadId, message) => apiClient.post("/api/chat", { threadId, message }),
+  sendMessage: (threadId, message, model) => apiClient.post("/api/chat/chat", { threadId, message, model }),
 
-  getThreads: () => apiClient.get("/api/thread"),
+  getThreads: () => apiClient.get("/api/chat/thread"),
 
-  getThread: (threadId) => apiClient.get(`/api/thread/${threadId}`),
+  getThread: (threadId) => apiClient.get(`/api/chat/thread/${threadId}`),
 
-  deleteThread: (threadId) => apiClient.delete(`/api/thread/${threadId}`),
+  deleteThread: (threadId) => apiClient.delete(`/api/chat/thread/${threadId}`),
+
+  renameThread: (threadId, title) => apiClient.put(`/api/chat/thread/${threadId}`, { title }),
+
+  searchThreads: (query) => apiClient.get(`/api/chat/search`, { params: { q: query } }),
+
+  getModels: () => apiClient.get("/api/chat/models"),
+
+  // SSE streaming — returns the raw URL + token for EventSource
+  getStreamUrl: () => `${API_BASE_URL}/api/chat/chat/stream`,
 }
 
+export { API_BASE_URL }
 export default apiClient

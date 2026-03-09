@@ -8,6 +8,7 @@ import { MyContext } from "./MyContext"
 import { v1 as uuidv1 } from "uuid"
 import { useAuth } from "./hooks/useAuth"
 import AuthPage from "./components/AuthPage"
+import ErrorBoundary from "./components/ErrorBoundary"
 
 function App() {
   const { user, token, loading } = useAuth()
@@ -17,6 +18,7 @@ function App() {
   const [prevChats, setPrevChats] = useState([])
   const [newChat, setNewChat] = useState(true)
   const [allThreads, setAllThreads] = useState([])
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const ProviderValues = {
     prompt,
@@ -32,6 +34,8 @@ function App() {
     allThreads,
     setAllThreads,
     token,
+    sidebarOpen,
+    setSidebarOpen,
   }
 
   if (loading) {
@@ -48,12 +52,14 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <MyContext.Provider value={ProviderValues}>
-        <Sidebar />
-        <ChatWindow />
-      </MyContext.Provider>
-    </div>
+    <ErrorBoundary>
+      <div className="app">
+        <MyContext.Provider value={ProviderValues}>
+          <Sidebar />
+          <ChatWindow />
+        </MyContext.Provider>
+      </div>
+    </ErrorBoundary>
   )
 }
 

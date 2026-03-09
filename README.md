@@ -1,216 +1,164 @@
 # LolaGPT
 
-LolaGPT is a ChatGPT-like web application that combines a React frontend with a Node.js/Express backend and MongoDB persistence. The backend integrates with Groq AI (using the Llama family model in the example code) to generate assistant responses. The app supports user authentication, per-user chat threads, rate limiting and basic security hardening.
-
-> NOTE: This README was generated from the repository structure and source files. Double-check/API keys and ports before running in production.
-
-## Table of Contents
-
-- [Features](#features)
-- [Project structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Getting started (Backend)](#getting-started-backend)
-- [Getting started (Frontend)](#getting-started-frontend)
-- [Environment variables](#environment-variables)
-- [API Endpoints](#api-endpoints)
-- [Database models](#database-models)
-- [Deployment notes & tips](#deployment-notes--tips)
-- [Security](#security)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+A full-featured ChatGPT clone built with React, Node.js/Express, MongoDB, and Groq AI. Supports real-time streaming responses, multi-model selection, conversation threads, user authentication, and a responsive dark-themed UI.
 
 ## Features
 
-- User registration and login
-- JWT-based authentication
-- Thread-based chat history (per-user)
-- Integration with Groq AI (chat completions)
-- Rate limiting and Helmet security headers
-- CORS configuration for frontend/backed separation
-- React frontend with:
-  - Chat UI and animated typing
-  - Markdown rendering and syntax highlighting
-  - Thread sidebar, profile settings, and logout
+- **Real-time streaming** — Server-Sent Events (SSE) for token-by-token AI responses
+- **Multi-model support** — Switch between Llama 3.3 70B, Llama 3.1 8B, Mixtral 8x7B, and Gemma2 9B
+- **JWT authentication** — Secure registration, login, profile management, and password changes
+- **Thread management** — Create, rename, search, and delete conversation threads
+- **Conversation context** — AI receives up to 20 previous messages for contextual replies
+- **Code highlighting** — Syntax-highlighted code blocks with one-click copy
+- **Chat export** — Download conversations as Markdown files
+- **Responsive design** — Mobile-friendly with collapsible sidebar
+- **Welcome screen** — Suggested prompts for new conversations
+- **Rate limiting & security** — Helmet, CORS, rate limiting, input validation
+- **Error boundary** — Graceful error handling in the frontend
 
-## Project structure
+## Project Structure
 
-High-level layout:
-
-- Frontend/ — React app (Vite-based; JSX entry at `Frontend/src/main.jsx`)
-  - src/
-    - App.jsx, ChatWindow.jsx, Chat.jsx, Sidebar.jsx, services/api.js, styles, etc.
-- Backend/ — Node.js/Express server
-  - server.js
-  - routes/ (auth.js, user.js, chat.js)
-  - models/ (User.js, Thread.js)
-  - middleware/ (auth.js, rateLimiter.js)
-  - utils/ (jwt.js, groqAi.js)
+```
+LolaGPT/
+├── Backend/
+│   ├── server.js              # Express entry point
+│   ├── routes/
+│   │   ├── auth.js            # Register & login
+│   │   ├── user.js            # Profile & password
+│   │   └── chat.js            # Chat, streaming, threads, search, models
+│   ├── models/
+│   │   ├── User.js            # User schema
+│   │   └── Thread.js          # Thread & messages schema
+│   ├── middleware/
+│   │   ├── auth.js            # JWT verification
+│   │   └── rateLimiter.js     # Rate limiting
+│   └── utils/
+│       ├── groqAi.js          # Groq API (standard + streaming)
+│       └── jwt.js             # Token generation
+├── Frontend/
+│   ├── src/
+│   │   ├── App.jsx            # Root with ErrorBoundary
+│   │   ├── ChatWindow.jsx     # Main chat UI, streaming, model select
+│   │   ├── Chat.jsx           # Message rendering, markdown, code blocks
+│   │   ├── Sidebar.jsx        # Thread list, search, rename
+│   │   ├── MyContext.jsx       # Chat state context
+│   │   ├── services/api.js    # Centralized Axios API client
+│   │   ├── context/AuthContext.jsx
+│   │   ├── hooks/useAuth.js
+│   │   └── components/        # Auth pages, UserProfile, ErrorBoundary
+│   └── index.html
+└── README.md
+```
 
 ## Prerequisites
 
-- Node.js (v14+ recommended)
-- npm or yarn
-- MongoDB (local or hosted)
-- Groq API key (or another LLM provider key) — used by `Backend/utils/groqAi.js`
+- Node.js 18+
+- MongoDB (local or hosted — e.g., MongoDB Atlas)
+- [Groq API key](https://console.groq.com/)
 
-## Getting started (Backend)
+## Getting Started
 
-1. Open a terminal and change to the backend directory:
-   ```bash
-   cd Backend
-   ```
+### Backend
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create and configure `.env` (see [Environment variables](#environment-variables) below). You can copy the example:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Start the server (development):
-   ```bash
-   npm run dev
-   ```
-   or
-   ```bash
-   npm start
-   ```
-
-Notes:
-- The server uses `process.env.PORT` (default shown in code is 5000). If your frontend expects a different backend port (see `Frontend/src/ChatWindow.jsx` — the `API_BASE` constant is set to `http://localhost:8080/api/chat` in the current code), either:
-  - Change `API_BASE` in the frontend to match your backend `PORT`, or
-  - Start the backend on the port the frontend expects (e.g., set `PORT=8080` in `.env`).
-
-## Getting started (Frontend)
-
-1. Open a terminal and change to the frontend directory:
-   ```bash
-   cd Frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Update the backend API base URL:
-   - The frontend currently uses a hard-coded `API_BASE` constant in `Frontend/src/ChatWindow.jsx`:
-     ```js
-     const API_BASE = "http://localhost:8080/api/chat"
-     ```
-     Update that URL to match the backend server (for example `http://localhost:5000/api/chat`) or change the backend port to 8080 as noted above.
-   - Optionally, refactor the frontend to use an environment variable (e.g., Vite `import.meta.env.VITE_API_BASE`) for easier configuration.
-
-4. Start the frontend (Vite):
-   ```bash
-   npm run dev
-   ```
-
-5. Open the app in your browser (Vite default: `http://localhost:5173`).
-
-## Environment variables
-
-Backend `.env` (example):
-```
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/lolagpt
-JWT_SECRET=your_secure_secret_key
-FRONTEND_URL=http://localhost:5173
-GROQ_API_KEY=your_groq_api_key
+```bash
+cd Backend
+npm install
+cp .env.example .env    # Edit with your values
+npm run dev             # Development with nodemon
 ```
 
-- PORT: port the backend server will bind to.
-- MONGODB_URI: MongoDB connection string.
-- JWT_SECRET: secret used to sign JWT tokens.
-- FRONTEND_URL: allowed origin for CORS (set to your frontend development URL).
-- GROQ_API_KEY: API key for Groq AI (keep secret!).
+### Frontend
 
-Frontend configuration:
-- The repo currently uses a hard-coded API_BASE in `Frontend/src/ChatWindow.jsx`. Replace it with your backend base URL or change the backend port accordingly.
+```bash
+cd Frontend
+npm install
+cp .env.example .env    # Edit if backend is not on port 8080
+npm run dev             # Vite dev server at http://localhost:5173
+```
+
+## Environment Variables
+
+### Backend (`.env`)
+| Variable | Description | Default |
+|---|---|---|
+| `PORT` | Server port | `5000` |
+| `MONGODB_URI` | MongoDB connection string | — |
+| `JWT_SECRET` | Secret for signing JWT tokens | — |
+| `GROQ_API_KEY` | Groq AI API key | — |
+| `FRONTEND_URL` | Allowed CORS origin | `http://localhost:5173` |
+
+### Frontend (`.env`)
+| Variable | Description | Default |
+|---|---|---|
+| `VITE_API_URL` | Backend API base URL | `http://localhost:8080` |
 
 ## API Endpoints
 
-Authentication
-- POST /api/auth/register — Register a new user
-- POST /api/auth/login — Log in a user
+### Auth
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login |
 
-User
-- GET /api/user/profile — Get user profile (requires auth)
-- PUT /api/user/profile — Update profile (requires auth)
-- POST /api/user/change-password — Change password (requires auth)
+### User (requires auth)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/user/profile` | Get profile |
+| PUT | `/api/user/profile` | Update username/email |
+| POST | `/api/user/change-password` | Change password |
 
-Chat & Threads
-- POST /api/chat — Send a chat message (requires auth). Body: `{ threadId, message }`
-- GET /api/thread — Get all user threads (requires auth)
-- GET /api/thread/:threadId — Get a specific thread (requires auth)
-- DELETE /api/thread/:threadId — Delete a thread (requires auth)
+### Chat (requires auth)
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/chat/chat` | Send message (non-streaming) |
+| POST | `/api/chat/chat/stream` | Send message (SSE streaming) |
+| GET | `/api/chat/thread` | List all threads |
+| GET | `/api/chat/thread/:threadId` | Get thread messages |
+| DELETE | `/api/chat/thread/:threadId` | Delete a thread |
+| PUT | `/api/chat/thread/:threadId` | Rename a thread |
+| GET | `/api/chat/search?q=term` | Search threads |
+| GET | `/api/chat/models` | List available AI models |
 
-Example: send a chat message (after obtaining JWT token):
+## Deployment
+
+### Build Frontend
 ```bash
-curl -X POST "http://localhost:5000/api/chat" \
-  -H "Authorization: Bearer <JWT_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{"threadId":"<thread-id>", "message":"Hello LolaGPT!"}'
+cd Frontend
+npm run build    # Output in dist/
 ```
 
-## Database models
+### Production Backend
+```bash
+cd Backend
+NODE_ENV=production npm start
+```
 
-Thread model (simplified):
-- threadId: string (unique)
-- userId: ObjectId -> User
-- title: string
-- messages: array of message objects
-  - message: { role: "user" | "assistant", content: string, timestamp: Date }
-- createdAt, updatedAt: Date
+### Deployment Options
+- **Frontend**: Vercel, Netlify, or any static hosting (serve `dist/`)
+- **Backend**: Railway, Render, Fly.io, or a VPS with PM2
+- **Database**: MongoDB Atlas (free tier available)
 
-User model: typical email/password/username + hashed password and any profile fields (see `Backend/models/User.js` in the repo).
+### Production Checklist
+- [ ] Set strong `JWT_SECRET` (use `openssl rand -base64 32`)
+- [ ] Set `FRONTEND_URL` to your deployed frontend URL
+- [ ] Set `VITE_API_URL` to your deployed backend URL
+- [ ] Ensure `.env` is in `.gitignore`
+- [ ] Enable HTTPS
 
-## Deployment notes & tips
+## Tech Stack
 
-- Keep your `GROQ_API_KEY` secret. Never commit `.env` to version control.
-- For production, build frontend and serve it via a static host (Netlify, Vercel, S3+CloudFront) or serve from the backend (if coupling is desired).
-- Use process managers (PM2, systemd) for backend process management.
-- Use HTTPS and a secure cookie configuration (if using cookies).
-- Consider using a more robust secret storage (AWS Secrets Manager, Vault) for API keys in production.
-- If you expect high traffic, consider model usage limits or caching responses to reduce API costs.
-
-## Security
-
-- Passwords should be hashed (the backend uses bcryptjs).
-- JWT is used for auth. Make sure to use a strong `JWT_SECRET`.
-- Rate limiting and Helmet are already present in server.js/middleware to provide basic protection.
-- Validate all input and sanitize where appropriate.
-
-## Troubleshooting
-
-- If assistant responses are empty or undefined, check `Backend/utils/groqAi.js`:
-  - Ensure `GROQ_API_KEY` is set and valid.
-  - Check the Groq API response structure before accessing `data.choices[0].message.content`.
-- If the frontend cannot reach the backend:
-  - Confirm ports and `API_BASE` in `Frontend/src/ChatWindow.jsx`.
-  - Confirm backend `FRONTEND_URL` includes the frontend origin for CORS.
-
-## Contributing
-
-- Fork the repository and create feature branches for changes.
-- Keep secrets out of commits.
-- Open issues for bugs and feature requests, and create PRs for fixes.
-
-Suggested improvements
-- Extract `API_BASE` into environment variables for easier configuration.
-- Add tests for core backend routes.
-- Add CI (GitHub Actions) for linting and tests.
-- Add better error handling & validation for Groq/LLM responses.
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, Axios, React Markdown |
+| Backend | Express 5, Mongoose 9, JWT, Helmet |
+| AI | Groq API (Llama, Mixtral, Gemma) |
+| Database | MongoDB |
 
 ## License
 
-No license file was detected in the repository. Consider adding a LICENSE (MIT, Apache-2.0, etc.) depending on your project goals. Example: add an `LICENSE` file with the MIT license if you want permissive open-source licensing.
+MIT
 
 ## Acknowledgements
 
-- Groq AI (used in `Backend/utils/groqAi.js`) — replace or configure as necessary based on your API provider and usage policy.
-- React, Express, MongoDB and the other OSS libraries used in this project.
+- [Groq](https://groq.com/) for fast AI inference
+- [React](https://react.dev/), [Express](https://expressjs.com/), [MongoDB](https://www.mongodb.com/), and all OSS dependencies

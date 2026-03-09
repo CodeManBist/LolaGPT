@@ -30,9 +30,6 @@ export default function RegisterForm({ onSwitchToLogin, onRegisterSuccess }) {
       setConfirmPassword("")
       onRegisterSuccess?.()
     } catch (err) {
-      console.error("[v0] Registration error:", err.response?.data || err.message)
-      console.error("[v0] Full error object:", err)
-
       const errorMessage = err.response?.data?.error || err.message || "Registration failed"
       setError(errorMessage)
     } finally {

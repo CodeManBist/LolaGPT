@@ -5,72 +5,94 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 
-const Chat = () => {
+// Code block with copy button
+const CodeBlock = ({ children, className, ...props }) => {
+  const [copied, setCopied] = useState(false);
+  const isCodeBlock = className || (typeof children === 'string' && children.includes('\n'));
+
+  const handleCopy = async () => {
+    const text = typeof children === 'string' ? children : String(children);
+    try {
+      await navigator.clipboard.writeText(text.replace(/\n$/, ''));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  if (!isCodeBlock) {
+    return <code className={className} {...props}>{children}</code>;
+  }
+
+  return (
+    <div className="code-block-wrapper">
+      <div className="code-block-header">
+        <span className="code-lang">{className?.replace('hljs language-', '') || 'code'}</span>
+        <button className="copy-btn" onClick={handleCopy}>
+          <i className={copied ? "fa-solid fa-check" : "fa-regular fa-clipboard"}></i>
+          {copied ? " Copied!" : " Copy"}
+        </button>
+      </div>
+      <code className={className} {...props}>{children}</code>
+    </div>
+  );
+};
+
+const Chat = ({ streamingText }) => {
   const bottomRef = useRef(null);
-  const { newChat, prevChats, reply } = useContext(MyContext);
-  const [latestReply, setLatestReply] = useState(null);
+  const { newChat, prevChats } = useContext(MyContext);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [prevChats, latestReply]);
+  }, [prevChats, streamingText]);
 
-  useEffect(() => {
-    if(reply === null) {
-      setLatestReply(null);
-      return;
-    }
+  const markdownComponents = {
+    code: CodeBlock,
+  };
 
-    if(!prevChats?.length) return;
-
-    const content = reply.split(" ");
-
-    let idx = 0;
-    const interval = setInterval(() => {
-      setLatestReply(content.slice(0, idx+1).join(" "));
-      idx++;
-      if(idx >= content.length) clearInterval(interval);
-    }, 40);
-    return () => clearInterval(interval);
-  }, [prevChats, reply]);
+  // While streaming, show text live; prevChats won't have the assistant msg yet
+  const isStreaming = streamingText !== null && streamingText !== undefined;
 
   return (
     <>
-      {newChat && <h1>Start a New Chat!</h1>}
+      {newChat && prevChats.length === 0 && <h1 className="new-chat-heading">Start a New Chat!</h1>}
       <div className="chats">
-        {
-          prevChats?.slice(0, -1).map((chat, idx) =>
-            <div className={chat.role === "user" ? "userDiv" : "gptDiv"} key={idx}>
-              {
-                chat.role === "user" ? 
-                <p className="userMessage" >{chat.content}</p>:
-                <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{chat.content}</ReactMarkdown>
-              }
-            </div>
-          )
-        }
+        {prevChats.map((chat, idx) => (
+          <div className={chat.role === "user" ? "userDiv" : "gptDiv"} key={idx}>
+            {chat.role === "user" ? (
+              <p className="userMessage">{chat.content}</p>
+            ) : (
+              <div className="assistant-message">
+                <ReactMarkdown
+                  rehypePlugins={[rehypeHighlight]}
+                  components={markdownComponents}
+                >
+                  {chat.content}
+                </ReactMarkdown>
+              </div>
+            )}
+          </div>
+        ))}
 
-        {
-          prevChats.length > 0 && (
-            <>
-              {
-                latestReply == null ? (
-                <div className="gptDiv" key={"non-typing"}>
-                  <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{prevChats[prevChats.length-1].content}</ReactMarkdown>
-                </div>
-                ) : (
-                <div className="gptDiv" key={"typing"}>
-                    <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{latestReply}</ReactMarkdown>
-                </div>
-                )
-              }
-            </>
-          )
-        }
-        
+        {isStreaming && (
+          <div className="gptDiv" key="streaming">
+            <div className="assistant-message">
+              <ReactMarkdown
+                rehypePlugins={[rehypeHighlight]}
+                components={markdownComponents}
+              >
+                {streamingText}
+              </ReactMarkdown>
+              <span className="typing-cursor">|</span>
+            </div>
+          </div>
+        )}
+
         <div ref={bottomRef}></div>
       </div>
     </>
-  )
-}
+  );
+};
 
 export default Chat

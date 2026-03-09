@@ -2,27 +2,35 @@
   background-color: #171717;
   color: #b4b4b4;
   height: 100vh;
-  width: 320px;
+  width: 280px;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-overlay {
+  display: none;
 }
 
 /* New chat button */
-button {
+.new-chat-btn {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 10px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: transparent;
-  border: solid 0.5px rgba(255, 255, 255, 0.5);
+  border: solid 0.5px rgba(255, 255, 255, 0.15);
   cursor: pointer;
+  transition: background 0.2s;
+  width: calc(100% - 20px);
 }
 
-button:hover {
-  background-color: rgba(180, 180, 180, 0.05);
+.new-chat-btn:hover {
+  background-color: rgba(180, 180, 180, 0.08);
 }
 
 .logo {
@@ -32,26 +40,58 @@ button:hover {
   border-radius: 50%;
 }
 
+/* Search box */
+.search-box {
+  margin: 0 10px 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-box i {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  color: #ececec;
+  font-size: 0.85rem;
+  width: 100%;
+  padding: 0;
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: #555;
+}
+
 /* History list scrollable */
 .history {
-  margin: 10px;
-  padding: 10px;
+  margin: 0 10px;
+  padding: 0 4px;
   flex: 1;
   overflow-y: auto;
+  list-style: none;
 }
 
 /* Scrollbar */
 .history::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .history::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 10px;
 }
 
 .history::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Thread item */
@@ -62,12 +102,12 @@ button:hover {
   gap: 8px;
 
   padding: 8px 10px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   border-radius: 10px;
-
   overflow: hidden;
+  transition: background 0.15s;
 }
 
 .history li .title {
@@ -75,38 +115,73 @@ button:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 20ch;
 }
 
 .history li:hover {
-  background-color: rgba(180, 180, 180, 0.05);
+  background-color: rgba(180, 180, 180, 0.08);
 }
 
-.fa-trash {
+/* Thread action icons */
+.thread-actions {
+  display: flex;
+  gap: 6px;
   opacity: 0;
-  min-width: 20px;
-  text-align: right;
-  transition: 0.2s ease-in-out;
+  transition: opacity 0.2s;
 }
 
-.history li:hover .fa-trash {
+.history li:hover .thread-actions {
   opacity: 1;
-  color: #fff;
 }
 
-.fa-trash:hover {
-  color: #f87171 !important;
+.thread-actions i {
+  font-size: 0.75rem;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  min-width: 20px;
+  text-align: center;
+}
+
+.thread-actions .fa-pen {
+  color: #8b8b8b;
+}
+
+.thread-actions .fa-pen:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.thread-actions .fa-trash {
+  color: #8b8b8b;
+}
+
+.thread-actions .fa-trash:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* Rename input */
+.rename-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #667eea;
+  color: #ececec;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex: 1;
+  outline: none;
+  width: 100%;
 }
 
 .highlighted {
-  background-color: rgba(180, 180, 180, 0.05);
+  background-color: rgba(180, 180, 180, 0.08);
   border-radius: 10px;
 }
 
-/* Added user section styling */
+/* User section */
 .user-section {
-  padding: 15px 10px;
-  border-top: solid 0.25px rgba(255, 255, 255, 0.5);
+  padding: 12px 10px;
+  border-top: solid 0.5px rgba(255, 255, 255, 0.08);
   margin-top: auto;
 }
 
@@ -121,14 +196,14 @@ button:hover {
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   color: white;
   flex-shrink: 0;
 }
@@ -151,7 +226,7 @@ button:hover {
 .user-details .email {
   margin: 2px 0 0 0;
   font-size: 11px;
-  color: #888;
+  color: #666;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -162,23 +237,51 @@ button:hover {
   justify-content: center;
   gap: 8px;
   padding: 8px 12px;
-  background-color: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.3) !important;
+  background-color: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.2) !important;
   color: #f87171;
   font-size: 13px;
   transition: all 0.2s ease-in-out;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .logout-btn:hover {
-  background-color: rgba(248, 113, 113, 0.2);
+  background-color: rgba(248, 113, 113, 0.15);
   border-color: #f87171 !important;
   color: #fca5a5;
 }
 
 .sign {
-  padding: 10px;
+  padding: 8px;
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
-  border-top: solid 0.25px rgba(255, 255, 255, 0.5);
+  border-top: solid 0.5px rgba(255, 255, 255, 0.08);
+  color: #555;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
 }

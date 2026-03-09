@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import axios from "axios"
 import { useAuth } from "../hooks/useAuth"
+import { authAPI } from "../services/api"
 import "../styles/AuthForm.css"
 
 export default function LoginForm({ onSwitchToRegister, onLoginSuccess }) {
@@ -18,10 +18,7 @@ export default function LoginForm({ onSwitchToRegister, onLoginSuccess }) {
     setLoading(true)
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
-        email,
-        password,
-      })
+      const response = await authAPI.login(email, password)
 
       const { token, user } = response.data
       login(token, user)

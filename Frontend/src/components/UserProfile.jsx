@@ -7,7 +7,7 @@ import { getErrorMessage } from "../utils/errors"
 import "../styles/UserProfile.css"
 
 export default function UserProfile({ onClose }) {
-  const { user, logout } = useAuth()
+  const { user, logout, refreshUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [showPasswordChange, setShowPasswordChange] = useState(false)
   const [username, setUsername] = useState(user?.username || "")
@@ -34,6 +34,7 @@ export default function UserProfile({ onClose }) {
       await userAPI.updateProfile(username, email)
       setSuccess("Profile updated successfully")
       setIsEditing(false)
+      if (refreshUser) refreshUser()
       setTimeout(() => setSuccess(""), 3000)
     } catch (err) {
       setError(getErrorMessage(err))
