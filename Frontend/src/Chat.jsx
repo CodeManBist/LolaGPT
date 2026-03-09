@@ -5,38 +5,53 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 
-// Code block with copy button
-const CodeBlock = ({ children, className, ...props }) => {
+// Extract text from React children recursively
+const extractText = (children) => {
+  if (typeof children === 'string') return children;
+  if (Array.isArray(children)) return children.map(extractText).join('');
+  if (children?.props?.children) return extractText(children.props.children);
+  return String(children ?? '');
+};
+
+// Pre block wrapper with copy button
+const PreBlock = ({ children, ...props }) => {
   const [copied, setCopied] = useState(false);
-  const isCodeBlock = className || (typeof children === 'string' && children.includes('\n'));
+
+  // Extract language from the child <code> element
+  const codeChild = children?.props;
+  const className = codeChild?.className || '';
+  const lang = className.replace(/.*language-/, '').replace(/.*hljs.*/, '') || 'code';
 
   const handleCopy = async () => {
-    const text = typeof children === 'string' ? children : String(children);
+    const text = extractText(codeChild?.children);
     try {
       await navigator.clipboard.writeText(text.replace(/\n$/, ''));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback
-    }
+    } catch { /* fallback */ }
   };
-
-  if (!isCodeBlock) {
-    return <code className={className} {...props}>{children}</code>;
-  }
 
   return (
     <div className="code-block-wrapper">
       <div className="code-block-header">
-        <span className="code-lang">{className?.replace('hljs language-', '') || 'code'}</span>
+        <span className="code-lang">{lang}</span>
         <button className="copy-btn" onClick={handleCopy}>
           <i className={copied ? "fa-solid fa-check" : "fa-regular fa-clipboard"}></i>
           {copied ? " Copied!" : " Copy"}
         </button>
       </div>
-      <code className={className} {...props}>{children}</code>
+      <pre {...props}>{children}</pre>
     </div>
   );
+};
+
+// Inline code only
+const InlineCode = ({ children, className, ...props }) => {
+  if (className) {
+    // This is inside a <pre>, let it render normally
+    return <code className={className} {...props}>{children}</code>;
+  }
+  return <code className="inline-code" {...props}>{children}</code>;
 };
 
 const Chat = ({ streamingText }) => {
@@ -48,7 +63,8 @@ const Chat = ({ streamingText }) => {
   }, [prevChats, streamingText]);
 
   const markdownComponents = {
-    code: CodeBlock,
+    pre: PreBlock,
+    code: InlineCode,
   };
 
   // While streaming, show text live; prevChats won't have the assistant msg yet

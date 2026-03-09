@@ -13,7 +13,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(
   cors({

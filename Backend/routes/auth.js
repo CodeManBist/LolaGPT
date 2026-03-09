@@ -12,6 +12,10 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
+  if (password.length < 6) {
+    return res.status(400).json({ error: "Password must be at least 6 characters" });
+  }
+
   if (password !== confirmPassword) {
     return res.status(400).json({ error: "Passwords do not match" });
   }
@@ -49,6 +53,11 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({
         error: "User already exists with that email or username",
       });
+    }
+
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({ error: messages[0] });
     }
 
     res.status(500).json({ error: "Registration failed" });

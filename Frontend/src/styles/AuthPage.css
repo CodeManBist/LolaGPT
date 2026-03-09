@@ -1,19 +1,19 @@
 :root {
-  --bg-main: #f7f7f8;
-  --card-bg: #ffffff;
+  --bg-main: #212121;
+  --card-bg: #2a2a2a;
 
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
+  --text-primary: #ececec;
+  --text-secondary: #8b8b8b;
 
-  --border-color: #e5e7eb;
+  --border-color: rgba(255, 255, 255, 0.08);
 
-  --primary-color: #10a37f;        /* ChatGPT green */
-  --primary-hover: #0e8f6f;
+  --primary-color: #667eea;
+  --primary-hover: #5a6fd6;
 
-  --error-bg: #fef2f2;
-  --error-text: #b91c1c;
+  --error-bg: rgba(248, 113, 113, 0.1);
+  --error-text: #fca5a5;
 
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -22,13 +22,13 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background:  var(--bg-main);
+  background: var(--bg-main);
   padding: 1rem;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 420px;
   background: var(--card-bg);
   border-radius: 16px;
   box-shadow: var(--shadow-soft);
@@ -36,20 +36,32 @@
 }
 
 .auth-header {
-  padding: 1.5rem 2rem;
+  padding: 2rem 2rem 1rem;
   text-align: center;
-  background: #ffffff;
-  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: white;
+  margin: 0 auto 1rem;
 }
 
 .auth-header h1 {
   margin: 0 0 0.4rem;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .auth-header p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }

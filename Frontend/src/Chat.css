@@ -73,6 +73,7 @@
 .hljs {
     border-radius: 0 0 14px 14px !important;
     margin-top: 0 !important;
+    padding: 1rem !important;
 }
 
 pre {
@@ -87,6 +88,12 @@ pre {
     border-radius: 14px;
     overflow: hidden;
     background: #0d1117;
+}
+
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
 }
 
 .code-block-header {
@@ -124,6 +131,15 @@ pre {
 .copy-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #ececec;
+}
+
+/* Inline code */
+.inline-code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #e06c75;
 }
 
 /* Typing cursor animation */
