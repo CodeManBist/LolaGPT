@@ -72,7 +72,7 @@ npm run dev             # Development with nodemon
 ```bash
 cd Frontend
 npm install
-cp .env.example .env    # Edit if backend is not on port 8080
+cp .env.example .env    # Edit if backend is not on port 3000
 npm run dev             # Vite dev server at http://localhost:5173
 ```
 
@@ -81,7 +81,7 @@ npm run dev             # Vite dev server at http://localhost:5173
 ### Backend (`.env`)
 | Variable | Description | Default |
 |---|---|---|
-| `PORT` | Server port | `5000` |
+| `PORT` | Server port | `3000` |
 | `MONGODB_URI` | MongoDB connection string | — |
 | `JWT_SECRET` | Secret for signing JWT tokens | — |
 | `GROQ_API_KEY` | Groq AI API key | — |
@@ -90,7 +90,7 @@ npm run dev             # Vite dev server at http://localhost:5173
 ### Frontend (`.env`)
 | Variable | Description | Default |
 |---|---|---|
-| `VITE_API_URL` | Backend API base URL | `http://localhost:8080` |
+| `VITE_API_URL` | Backend API base URL | `http://localhost:3000` |
 
 ## API Endpoints
 
